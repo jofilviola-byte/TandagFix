@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  
+  <title>
+   TandagFix &mdash; Home Service Marketplace
+  </title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b6b4f">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+ </head>
+ <body>
+  <header>
+   <div class="top">
+    <div class="brand">
+     <img alt="TandagFix logo" id="brandLogo" src="assets/images/tandagfix-logo.jpeg"/>
+     <span>
+      TandagFix
+     </span>
+    </div>
+    <button aria-label="Switch light or dark mode" class="secondary" id="themeToggle">
+     ☾ Dark mode
+    </button>
+   </div>
+  </header>
+  <main class="wrap">
+   <section id="homeView">
+    <div class="hero">
+     <div class="hero-main">
+      <div class="eyebrow">
+       Trusted people. Reliable services.
+      </div>
+      <h1>
+       Home repairs, made easier.
+      </h1>
+      <p>
+       Find local home-service providers in Tandag, compare ratings, and book a time that works for you.
+      </p>
+      <button id="browseBtn" style="background:white;color:#07458f">
+       Find a service &darr;
+      </button>
+     </div>
+     <div class="hero-side">
+      <span class="muted">
+       A better home starts here
+      </span>
+      <strong>
+       6 service categories
+      </strong>
+      <p class="muted">
+       Simple booking steps, clear provider details, and booking updates in one place.
+      </p>
+      <button class="secondary" data-go="bookings">
+       View my bookings
+      </button>
+     </div>
+    </div>
+    <div class="section-head">
+     <h2>
+      What do you need help with?
+     </h2>
+     <span class="muted">
+      Choose a category
+     </span>
+    </div>
+    <div class="categories" id="categories">
+    </div>
+    <div class="section-head">
+     <h2>
+      Local service providers
+     </h2>
+     <span class="muted" id="resultCount">
+     </span>
+    </div>
+    <div class="panel">
+     <div class="filters">
+      <input aria-label="Search providers" class="search" id="searchInput" placeholder="🔎 Search name or service"/>
+      <select aria-label="Filter by category" id="categoryFilter">
+       <option value="">
+        All categories
+       </option>
+      </select>
+      <select aria-label="Filter by rating" id="ratingFilter">
+       <option value="0">
+        Any rating
+       </option>
+       <option value="4.8">
+        4.8 and above
+       </option>
+       <option value="4.5">
+        4.5 and above
+       </option>
+       <option value="4">
+        4.0 and above
+       </option>
+      </select>
+      <select aria-label="Sort providers" id="sortFilter">
+       <option value="rating">
+        Highest rated
+       </option>
+       <option value="price">
+        Lowest starting price
+       </option>
+       <option value="name">
+        Name A&ndash;Z
+       </option>
+      </select>
+     </div>
+     <div class="provider-grid" id="providerList"></div>
+     <div class="panel" style="margin-top:16px"><div class="section-head"><h3>Compare providers</h3><button class="secondary" id="compareBtn">Compare selected</button></div><p class="muted">Select 2 or 3 providers to compare rates, ratings, experience, and verification.</p><div id="compareResults" class="provider-grid"></div></div>
+    </div>
+   </section>
+   <section class="hidden" id="bookingsView">
+    <div class="section-head">
+     <h2>
+      My bookings
+     </h2>
+     <span class="muted">
+      Check the progress of your requests
+     </span>
+    </div>
+    <div class="provider-grid" id="bookingList">
+    </div>
+   </section>
+   <section class="hidden" id="providerView">
+    <div class="section-head">
+     <h2>
+      Provider dashboard
+     </h2>
+     <span class="muted">
+      Demo mode &mdash; manage sample requests
+     </span>
+    </div>
+    <div class="notice">
+     Providers can accept or decline requests and update the service status. Changes appear in the customer booking list.
+    </div>
+    <div class="provider-grid" id="providerRequests"></div>
+    <div class="panel" style="margin-top:16px"><h3>Provider earnings summary</h3><p class="muted">Demo earnings from completed bookings. TandagFix commission is 10%.</p><div id="providerEarnings"></div></div>
+   </section>
+   <section class="hidden" id="adminView">
+    <div class="section-head"><h2>Admin dashboard</h2><span class="muted">Prototype controls — no real accounts/backend</span></div>
+    <div class="provider-grid" id="adminMetrics"></div>
+    <div class="panel" style="margin-top:16px"><h3>Provider verification requests</h3><p class="muted">Uploaded IDs are only demo files. Approve or reject manually here.</p><div id="adminProviders" class="provider-grid"></div><hr><h3>Uploaded identity documents</h3><div id="adminVerificationRequests" class="provider-grid"></div></div>
+   </section>
+   <section class="hidden" id="notificationsView">
+    <div class="section-head"><h2>Notifications</h2><span class="muted">Booking and account updates</span></div><div class="provider-grid" id="notificationList"></div>
+   </section>
+   <section class="hidden" id="accountView">
+    <div class="section-head">
+     <h2>
+      Account &amp; sign in
+     </h2>
+     <span class="muted">
+      Prototype account setup
+     </span>
+    </div>
+    <div class="two-col">
+     <div class="panel">
+      <h3>
+       Create an account / Log in
+      </h3>
+      <p class="muted" id="authHelp">Create an account or sign in. With Supabase configured, accounts are securely authenticated online.</p>
+      <div class="field">
+       <label for="fullName">
+        Full name
+       </label>
+       <input id="fullName" placeholder="e.g. Ana Dela Cruz"/>
+      </div>
+      <div class="field">
+       <label for="email">
+        Email address
+       </label>
+       <input id="email" placeholder="you@example.com" type="email"/>
+      </div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters" required></div>
+      <div class="field">
+       <label for="role">
+        I am a...
+       </label>
+       <select id="role">
+        <option value="customer">
+         Customer &mdash; I need a service
+        </option>
+        <option value="provider">
+         Provider &mdash; I offer a service
+        </option>
+       </select>
+      </div>
+      <div class="actions auth-actions"><button id="signUpBtn" type="button">Create account</button><button class="secondary" id="signInBtn" type="button">Sign in</button><button class="ghost hidden" id="signOutBtn" type="button">Sign out</button></div><div id="authStatus" class="notice" aria-live="polite">Not signed in.</div><button class="ghost hidden" id="saveAccount" type="button">Save local demo profile</button>
+      <hr><h3>Provider identity verification</h3><p class="muted">Upload an ID image/PDF for this prototype. Admin approval is manual; when signed in, the file is stored privately and only admins can open it.</p>
+      <div class="field"><label for="verificationFile">Upload valid ID (image or PDF)</label><input id="verificationFile" type="file" accept="image/*,.pdf"></div>
+      <div id="verificationStatus" class="notice">Verification status: Not submitted</div>
+      <div class="notice hidden" id="accountMessage">
+      </div>
+     </div>
+     <div class="panel">
+      <h3>
+       About TandagFix
+      </h3>
+      <p>
+       One simple place to discover home-service providers around Tandag City.
+      </p>
+      <ul>
+       <li>
+        Electrician, carpenter, plumber
+       </li>
+       <li>
+        Painter, cleaner, appliance technician
+       </li>
+       <li>
+        Provider profiles, prices, ratings, and booking updates
+       </li>
+      </ul>
+      <p class="muted">
+       Prototype only: sample providers and bookings are for demonstration. No real payments or identity verification are processed.
+      </p>
+     </div>
+    </div>
+   </section>
+   <section class="hidden" id="profileView">
+    <div class="section-head">
+     <h2 id="profileTitle">
+      Provider profile
+     </h2>
+     <button class="ghost" data-go="home">
+      &larr; Back to providers
+     </button>
+    </div>
+    <div id="profileContent">
+    </div>
+   </section>
+   <section class="hidden" id="bookingFormView">
+    <div class="section-head">
+     <h2>
+      Book a service
+     </h2>
+     <button class="ghost" data-go="home">
+      &larr; Back
+     </button>
+    </div>
+    <div class="two-col">
+     <div class="panel" id="bookingProviderInfo">
+     </div>
+     <form class="panel" id="bookingForm">
+      <h3>
+       When and where do you need help?
+      </h3>
+      <div class="field">
+       <label for="bookingDate">
+        Preferred date
+       </label>
+       <input id="bookingDate" required="" type="date"/>
+      </div>
+      <div class="field">
+       <label for="bookingTime">
+        Preferred time
+       </label>
+       <select id="bookingTime" required="">
+        <option value="">
+         Choose a time
+        </option>
+        <option>
+         8:00 AM &ndash; 10:00 AM
+        </option>
+        <option>
+         10:00 AM &ndash; 12:00 PM
+        </option>
+        <option>
+         1:00 PM &ndash; 3:00 PM
+        </option>
+        <option>
+         3:00 PM &ndash; 5:00 PM
+        </option>
+       </select>
+      </div>
+      <div class="field">
+       <label for="address">
+        Service address in Tandag
+       </label>
+       <input id="address" placeholder="House number, street / barangay" required=""/><button class="secondary" type="button" id="gpsBtn" style="margin-top:8px">Use my current GPS location</button><p class="muted" id="gpsStatus" style="font-size:12px">GPS is optional. Your browser will ask permission before sharing your location.</p>
+      </div>
+      <div class="field">
+       <label for="jobDescription">
+        Describe the job
+       </label>
+       <textarea id="jobDescription" placeholder="Tell the provider what needs fixing..." required=""></textarea>
+      </div>
+      <div class="panel checkout-panel" style="margin:14px 0;background:var(--soft)">
+       <h3>Checkout summary</h3>
+       <div id="checkoutBreakdown"><p>Select a provider to see the price breakdown.</p></div>
+       <div class="field payment-field">
+        <label>Choose a payment method</label>
+        <div class="payment-options" id="paymentOptions" role="radiogroup" aria-label="Payment method">
+         <button class="payment-option selected" type="button" data-payment="Cash" role="radio" aria-checked="true">
+          <span class="payment-logo cash-logo" aria-hidden="true">₱</span><span class="payment-copy"><strong>Cash</strong><small>Pay after the service</small></span><span class="payment-radio" aria-hidden="true"></span>
+         </button>
+         <button class="payment-option" type="button" data-payment="GCash" role="radio" aria-checked="false">
+          <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/52/GCash_logo.svg" alt="GCash official logo"><span class="payment-copy"><strong>GCash</strong><small>Pay with GCash</small></span><span class="payment-radio" aria-hidden="true"></span>
+         </button>
+         <button class="payment-option" type="button" data-payment="Maya" role="radio" aria-checked="false">
+          <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Maya_logo.svg" alt="Maya official logo"><span class="payment-copy"><strong>Maya</strong><small>Pay with Maya</small></span><span class="payment-radio" aria-hidden="true"></span>
+         </button>
+        </div>
+        <select id="paymentMethod" aria-label="Selected payment method" class="payment-method-hidden"><option value="Cash" selected>Cash</option><option value="GCash">GCash</option><option value="Maya">Maya</option></select>
+       </div>
+       <p class="muted" style="font-size:12px">Demo only: no money is charged. GCash and Maya are shown as payment options but are not connected to real payments.</p>
+      </div>
+      <button style="width:100%" type="submit">Review price &amp; send booking request</button>
+      <p class="muted" style="font-size:13px">
+       No payment is collected in this prototype. Confirm the price directly with your provider.
+      </p>
+     </form>
+    </div>
+   </section>
+   <div class="footer">
+    TandagFix &middot; Trusted People. Reliable Services. A Better Home. 
+   </div>
+  </main>
+  <nav aria-label="Main navigation" class="topnav">
+   <button class="active" data-view="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Home</span></button>
+   <button data-view="bookings"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span>My Bookings</span></button>
+   <button data-view="provider"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>Provider Dashboard</span></button>
+   <button data-view="notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Alerts</span></button>
+   <button data-view="admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V5h16v15M8 9h8M8 13h8M8 17h5"/></svg><span>Admin</span></button>
+   <button data-view="account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><span>Account</span></button>
+  </nav>
+  <div class="toast hidden" id="toast" role="status">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/app.js" defer></script>
+  <script src="js/auth-gps.js" defer></script>
+  <script src="js/features.js" defer></script>
+ <script>
+  // Payment tiles update the existing select field used by the booking handler.
+  (function(){
+   const options = document.getElementById('paymentOptions');
+   const select = document.getElementById('paymentMethod');
+   if (!options || !select) return;
+   options.querySelectorAll('[data-payment]').forEach(function(button){
+    button.addEventListener('click', function(){
+     const method = button.getAttribute('data-payment');
+     select.value = method;
+     options.querySelectorAll('[data-payment]').forEach(function(item){
+      const active = item === button;
+      item.classList.toggle('selected', active);
+      item.setAttribute('aria-checked', active ? 'true' : 'false');
+     });
+    });
+   });
+  })();
+ </script>
+ </body>
+</html>
+
