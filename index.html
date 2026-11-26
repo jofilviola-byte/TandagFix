@@ -2,17 +2,20 @@
 <html lang="en">
  <head>
   <meta charset="utf-8"/>
-  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
   
   <title>
    TandagFix &mdash; Home Service Marketplace
   </title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b6b4f">
+  <meta name="theme-color" content="#4f46e5"><meta name="color-scheme" content="light dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
  </head>
  <body>
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <script>try{if(!localStorage.getItem("tandagfixTheme")&&matchMedia("(prefers-color-scheme: dark)").matches)localStorage.setItem("tandagfixTheme","dark")}catch(e){}</script>
   <header>
    <div class="top">
     <div class="brand">
@@ -21,6 +24,16 @@
       TandagFix
      </span>
     </div>
+  
+  <nav aria-label="Main navigation" class="topnav">
+   <button class="active" data-view="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Home</span></button>
+   <button data-view="bookings"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span>My Bookings</span></button>
+   <button data-view="messages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-3.8-.8L3 21l1.9-4.6A8.4 8.4 0 1 1 21 11.5z"/><path d="M8 10h8M8 14h5"/></svg><span>Messages</span><span class="nav-badge hidden" id="chatNavBadge">0</span></button>
+   <button data-view="provider"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>Provider Dashboard</span></button>
+   <button data-view="notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Alerts</span></button>
+   <button data-view="admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V5h16v15M8 9h8M8 13h8M8 17h5"/></svg><span>Admin</span></button>
+   <button data-view="account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><span>Account</span></button>
+  </nav>
     <button aria-label="Switch light or dark mode" class="secondary" id="themeToggle">
      ☾ Dark mode
     </button>
@@ -39,16 +52,17 @@
       <p>
        Find local home-service providers in Tandag, compare ratings, and book a time that works for you.
       </p>
-      <button id="browseBtn" style="background:white;color:#07458f">
+      <button id="browseBtn">
        Find a service &darr;
       </button>
+      <div class="stats"><div class="stat"><b data-count="18">0</b><small>Local pros</small></div><div class="stat"><b data-count="6">0</b><small>Trades</small></div><div class="stat"><b>4.9★</b><small>Top rating</small></div></div>
      </div>
      <div class="hero-side">
       <span class="muted">
        A better home starts here
       </span>
       <strong>
-       6 service categories
+       6 trusted trades
       </strong>
       <p class="muted">
        Simple booking steps, clear provider details, and booking updates in one place.
@@ -147,6 +161,27 @@
    </section>
    <section class="hidden" id="notificationsView">
     <div class="section-head"><h2>Notifications</h2><span class="muted">Booking and account updates</span></div><div class="provider-grid" id="notificationList"></div>
+   </section>
+   <section class="hidden" id="messagesView">
+    <div class="section-head">
+     <h2>Messages</h2>
+     <span class="muted">Chat with homeowners and service providers</span>
+    </div>
+    <div class="chat-shell" id="chatShell">
+     <aside class="chat-list" aria-label="Conversations">
+      <div class="chat-tools">
+       <input aria-label="Search conversations" class="search" id="chatSearch" placeholder="🔎 Search conversations" type="search"/>
+       <div aria-label="Filter conversations" class="chat-tabs" role="tablist">
+        <button aria-selected="true" class="active" data-chat-tab="all" role="tab" type="button">All</button>
+        <button aria-selected="false" data-chat-tab="unread" role="tab" type="button">Unread</button>
+        <button aria-selected="false" data-chat-tab="archived" role="tab" type="button">Archived</button>
+       </div>
+      </div>
+      <div class="chat-threads" id="chatThreads"></div>
+      <p class="chat-demo-note" id="chatDemoNote">Demo inbox — conversations are saved on this device.</p>
+     </aside>
+     <section aria-label="Conversation" class="chat-pane" id="chatPane"></section>
+    </div>
    </section>
    <section class="hidden" id="accountView">
     <div class="section-head">
@@ -298,10 +333,10 @@
           <span class="payment-logo cash-logo" aria-hidden="true">₱</span><span class="payment-copy"><strong>Cash</strong><small>Pay after the service</small></span><span class="payment-radio" aria-hidden="true"></span>
          </button>
          <button class="payment-option" type="button" data-payment="GCash" role="radio" aria-checked="false">
-          <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/5/52/GCash_logo.svg" alt="GCash official logo"><span class="payment-copy"><strong>GCash</strong><small>Pay with GCash</small></span><span class="payment-radio" aria-hidden="true"></span>
+          <img class="payment-logo" src="assets/images/gcash.svg" alt="GCash official logo"><span class="payment-copy"><strong>GCash</strong><small>Pay with GCash</small></span><span class="payment-radio" aria-hidden="true"></span>
          </button>
          <button class="payment-option" type="button" data-payment="Maya" role="radio" aria-checked="false">
-          <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Maya_logo.svg" alt="Maya official logo"><span class="payment-copy"><strong>Maya</strong><small>Pay with Maya</small></span><span class="payment-radio" aria-hidden="true"></span>
+          <img class="payment-logo" src="assets/images/maya.svg" alt="Maya official logo"><span class="payment-copy"><strong>Maya</strong><small>Pay with Maya</small></span><span class="payment-radio" aria-hidden="true"></span>
          </button>
         </div>
         <select id="paymentMethod" aria-label="Selected payment method" class="payment-method-hidden"><option value="Cash" selected>Cash</option><option value="GCash">GCash</option><option value="Maya">Maya</option></select>
@@ -319,14 +354,6 @@
     TandagFix &middot; Trusted People. Reliable Services. A Better Home. 
    </div>
   </main>
-  <nav aria-label="Main navigation" class="topnav">
-   <button class="active" data-view="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Home</span></button>
-   <button data-view="bookings"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span>My Bookings</span></button>
-   <button data-view="provider"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>Provider Dashboard</span></button>
-   <button data-view="notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span>Alerts</span></button>
-   <button data-view="admin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V5h16v15M8 9h8M8 13h8M8 17h5"/></svg><span>Admin</span></button>
-   <button data-view="account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg><span>Account</span></button>
-  </nav>
   <div class="toast hidden" id="toast" role="status">
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -334,6 +361,8 @@
   <script src="js/app.js" defer></script>
   <script src="js/auth-gps.js" defer></script>
   <script src="js/features.js" defer></script>
+  <script src="js/chat.js" defer></script>
+  <script src="js/ui.js" defer></script>
  <script>
   // Payment tiles update the existing select field used by the booking handler.
   (function(){

@@ -71,7 +71,7 @@ function bookingCard(b) {
 <p style="margin-top:13px"><strong>${esc(b.date)}</strong> · ${esc(b.time)}</p><p>${esc(b.address)}</p><p class="muted">${esc(b.description)}</p>
 ${(b.photos || []).map(p => `<img src="${p}" alt="Job photo" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin:2px">`).join("")}${steps}${review}${pay}
 ${open ? `<details><summary>Reschedule</summary><input type="date" id="rd-${b.id}" min="${today()}"><select id="rt-${b.id}">${slotOptions()}</select><button class="secondary" onclick="TF.resched(${b.id})">Save new time</button></details><button class="secondary" onclick="TF.cancel(${b.id})">Cancel booking</button>` : ""}
-<details ontoggle="TF.chat(${b.id},this)"><summary>💬 Chat with provider</summary><div id="chat-${b.id}" class="muted">Loading…</div><input id="msg-${b.id}" placeholder="Type a message" maxlength="1000"><button class="secondary" onclick="TF.send(${b.id})">Send</button></details>
+<button class="secondary tf-msg-btn" onclick="TFChat.openBooking(${b.id})">💬 Message provider${window.TFChat ? TFChat.badgeForBooking(b.id) : ""}</button>
 ${["Completed", "Cancelled", "Declined"].includes(b.status) ? `<button class="ghost" onclick="startBooking(${b.providerId})">Book again</button>` : ""}<button class="ghost" onclick="removeBooking(${b.id})">Remove from list</button></article>`;
 }
 renderBookings = function () {
@@ -96,17 +96,8 @@ const T = window.TF = {
   },
   confirmPay(id) { upd(id, b => { b.paymentStatus = "Paid"; }); addNotification("Payment confirmed by provider."); renderProviderRequests(); renderEarnings(); },
   async viewReceipt(id) { const b = bookings.find(x => x.id === id); if (b?.receipt) { const w = window.open(); w.document.write(`<img src="${b.receipt}" style="max-width:100%">`); } else if (b?.receiptPath && sb()) { const { data } = await sb().storage.from("receipts").createSignedUrl(b.receiptPath, 60); if (data) window.open(data.signedUrl); } },
-  async chat(id, el) {
-    if (!el.open) return; const box = $("chat-" + id); let list = chats[id] || [];
-    if (sb() && uid()) { const u = await bookingUuid(id); if (u) { const { data } = await sb().from("messages").select("*").eq("booking_id", u).order("created_at"); if (data) list = data.map(m => ({ mine: m.sender_id === uid(), text: m.body })); } }
-    box.innerHTML = list.length ? list.map(m => `<p style="text-align:${m.mine ? "right" : "left"}"><span class="pill">${esc(m.text)}</span></p>`).join("") : "No messages yet.";
-  },
-  async send(id) {
-    const i = $("msg-" + id), text = i.value.trim(); if (!text) return; i.value = "";
-    (chats[id] = chats[id] || []).push({ mine: true, text }); S("tfChats", chats);
-    if (sb() && uid()) { const u = await bookingUuid(id); if (u) await sb().from("messages").insert({ booking_id: u, sender_id: uid(), body: text }); }
-    T.chat(id, { open: true });
-  },
+  async chat(id) { if (window.TFChat) TFChat.openBooking(id); },
+  async send() { if (window.TFChat) TFChat.focusComposer(); },
   async dayOff(add, pid, d) {
     pid = Number(pid || $("availProvider").value); d = d || $("availDate").value; if (!d) return toast("Choose a date.");
     const a = dayoff[pid] = (dayoff[pid] || []).filter(x => x !== d); if (add) a.push(d); S("tfDayoff", dayoff); renderAvail();
@@ -119,7 +110,7 @@ const T = window.TF = {
 /* ---------- provider dashboard: requests (urgent first), availability, ledger ---------- */
 renderProviderRequests = function () {
   const list = [...bookings].sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0));
-  $("providerRequests").innerHTML = list.length ? list.map(b => `<article class="provider"><div class="provider-top"><div class="avatar">📋</div><div><h3>${esc(b.category)} request</h3><p>Provider: ${esc(b.providerName)}</p><span class="pill">${esc(b.status)}</span>${b.urgent ? ' <span class="pill">🚨 Urgent</span>' : ""}</div></div><p><strong>Date:</strong> ${esc(b.date)} · ${esc(b.time)}</p><p><strong>Address:</strong> ${esc(b.address)}</p><p>${esc(b.description)}</p>${(b.photos || []).map(p => `<img src="${p}" alt="Job photo" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin:2px">`).join("")}<p class="muted">Payment: ${esc(b.paymentMethod || "Cash")} · ${esc(b.paymentStatus || "Unpaid")}</p><div class="actions" style="flex-wrap:wrap;margin-top:12px">${b.status === "Requested" ? `<button onclick="updateStatus(${b.id},'Accepted')">Accept</button><button class="secondary" onclick="updateStatus(${b.id},'Declined')">Decline</button>` : ""}${b.status === "Accepted" ? `<button onclick="updateStatus(${b.id},'On the Way')">On the way</button>` : ""}${b.status === "On the Way" ? `<button onclick="updateStatus(${b.id},'Completed')">Mark completed</button>` : ""}${b.receipt || b.receiptPath ? `<button class="secondary" onclick="TF.viewReceipt(${b.id})">View receipt</button>` : ""}${b.paymentStatus !== "Paid" && !["Cancelled", "Declined"].includes(b.status) ? `<button class="secondary" onclick="TF.confirmPay(${b.id})">Confirm payment received</button>` : ""}</div></article>`).join("") : '<div class="panel empty" style="grid-column:1/-1">No incoming requests yet.</div>';
+  $("providerRequests").innerHTML = list.length ? list.map(b => `<article class="provider"><div class="provider-top"><div class="avatar">📋</div><div><h3>${esc(b.category)} request</h3><p>Provider: ${esc(b.providerName)}</p><span class="pill">${esc(b.status)}</span>${b.urgent ? ' <span class="pill">🚨 Urgent</span>' : ""}</div></div><p><strong>Date:</strong> ${esc(b.date)} · ${esc(b.time)}</p><p><strong>Address:</strong> ${esc(b.address)}</p><p>${esc(b.description)}</p>${(b.photos || []).map(p => `<img src="${p}" alt="Job photo" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin:2px">`).join("")}<p class="muted">Payment: ${esc(b.paymentMethod || "Cash")} · ${esc(b.paymentStatus || "Unpaid")}</p><div class="actions" style="flex-wrap:wrap;margin-top:12px">${b.status === "Requested" ? `<button onclick="updateStatus(${b.id},'Accepted')">Accept</button><button class="secondary" onclick="updateStatus(${b.id},'Declined')">Decline</button>` : ""}${b.status === "Accepted" ? `<button onclick="updateStatus(${b.id},'On the Way')">On the way</button>` : ""}${b.status === "On the Way" ? `<button onclick="updateStatus(${b.id},'Completed')">Mark completed</button>` : ""}<button class="secondary tf-msg-btn" onclick="TFChat.openBooking(${b.id})">💬 Message homeowner${window.TFChat ? TFChat.badgeForBooking(b.id) : ""}</button>${b.receipt || b.receiptPath ? `<button class="secondary" onclick="TF.viewReceipt(${b.id})">View receipt</button>` : ""}${b.paymentStatus !== "Paid" && !["Cancelled", "Declined"].includes(b.status) ? `<button class="secondary" onclick="TF.confirmPay(${b.id})">Confirm payment received</button>` : ""}</div></article>`).join("") : '<div class="panel empty" style="grid-column:1/-1">No incoming requests yet.</div>';
   renderAvail();
 };
 const _us = updateStatus; updateStatus = function (id, s) { _us(id, s); const b = bookings.find(x => x.id === id); if (b) push(b); };

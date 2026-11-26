@@ -5,7 +5,7 @@ The website is prepared to use Supabase for real email/password authentication a
 ## 1. Create the database
 1. Create a project at https://supabase.com/.
 2. Open **SQL Editor** in your project.
-3. Paste and run all of `SETUP-SUPABASE.sql`.
+3. Paste and run all of `SETUP-SUPABASE.sql`, then `SETUP-SUPABASE-V2.sql`, then `SETUP-SUPABASE-V3.sql`.
 4. In **Project Settings → API**, copy the **Project URL** and the **anon/public key**.
 
 ## 2. Connect the website
